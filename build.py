@@ -23,7 +23,6 @@ SITE = {
     "name": "Roland Moles",
     "email": "contacto@rolandmoles.com",        # correo público de la web
     "formspree": "https://formspree.io/f/mlgzvdlb",
-    "lulu": "#",                                  # enlace de compra del libro (pendiente)
     "instagram": "https://www.instagram.com/roland.moles/",
     "og_image": "/assets/img/og-image.jpg",
     "locale": "es_ES",
@@ -122,6 +121,16 @@ def expand(body, meta):
     decor = ""
     if meta.get("decor"):
         decor = open(os.path.join(SRC, "partials", meta["decor"] + ".html"), encoding="utf-8").read().strip()
+    nxt = meta.get("_next")
+    next_html = ""
+    if nxt:
+        next_html = ('<a class="group block mt-20 pt-12 border-t border-white/5" href="' + nxt[0] + '">'
+                     '<p class="text-xs text-white/30 tracking-tight mb-4">siguiente proyecto_</p>'
+                     '<div class="flex items-baseline justify-between gap-4"><span class="text-2xl md:text-3xl tracking-tight group-hover:text-primary transition-colors">'
+                     + nxt[1] + '</span><span class="text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-sm flex-shrink-0" aria-hidden="true">→</span></div></a>')
+    SIMPLE["project_end"] = ('<div class="mt-20 pt-12 border-t border-white/5 flex flex-wrap gap-4 items-center">'
+                             '<a class="inline-block px-8 py-4 bg-primary text-black hover:bg-primary/80 transition-all text-sm tracking-tight" href="/contacto">contacto_</a>'
+                             '</div>' + next_html + '</div></div></div>')
     SIMPLE["project_start"] = ('<div class="relative min-h-screen pt-24 sm:pt-32 pb-16 sm:pb-24 overflow-hidden">' + decor +
                                '<div class="max-w-[1200px] mx-auto px-8 md:px-16"><div data-r="fade" data-load style="--dur:.5s">' + BACK)
 
@@ -326,11 +335,21 @@ def main():
                 path = "/" if rel == "index" else "/" + rel
                 pages.append((path, fp))
 
+    # orden de proyectos = el de la lista de /proyectos (para "siguiente proyecto_")
+    order = re.findall(r"\{\{project_row:\s*(\S+)\s*\|", open(os.path.join(pdir, "proyectos.html"), encoding="utf-8").read())
+    titles = {}
+    for path, fp in pages:
+        if path in order:
+            titles[path] = read_page(fp)[0]["title"].split(" | ")[0]
+    nexts = {p: (order[(i + 1) % len(order)], titles.get(order[(i + 1) % len(order)], "")) for i, p in enumerate(order)}
+
     # primera pasada: HTML sin estilos para que Tailwind detecte las clases
     js_v = file_hash(os.path.join(DIST, "assets", "site.js"))
     rendered = []
     for path, fp in pages:
         meta, body = read_page(fp)
+        if path in nexts:
+            meta["_next"] = nexts[path]
         body = expand(body, meta)
         rendered.append((path, meta, body))
         out = os.path.join(DIST, "index.html" if path == "/" else path.strip("/") + ".html")
