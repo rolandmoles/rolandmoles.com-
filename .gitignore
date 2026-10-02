@@ -1,0 +1,7 @@
+node_modules/
+originals/
+tools/shots/
+tools/probe_local*.json
+tools/lm.json
+__pycache__/
+.DS_Store
