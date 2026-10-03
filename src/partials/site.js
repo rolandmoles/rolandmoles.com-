@@ -43,7 +43,7 @@
     document.body.appendChild(halo);
     var fine = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     var W = function () { return window.innerWidth; }, H = function () { return window.innerHeight; };
-    var cx = W() / 2, cy = H() * 0.38, tx = cx, ty = cy, r = 60, tr = Math.max(300, Math.min(W(), H()) * 0.42), running = false;
+    var cx = W() / 2, cy = H() * 0.38, tx = cx, ty = cy, tr = Math.max(300, Math.min(W(), H()) * 0.42), r = tr, running = false;
     function paint() {
       halo.style.setProperty("--hx", cx.toFixed(1) + "px");
       halo.style.setProperty("--hy", cy.toFixed(1) + "px");
