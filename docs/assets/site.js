@@ -29,6 +29,42 @@
     });
   });
 
+  /* ---------- clarObscur: halo de luz ---------- */
+  if (document.body.getAttribute("data-effect") === "clarobscur") {
+    var halo = document.createElement("div");
+    halo.className = "halo"; halo.setAttribute("aria-hidden", "true");
+    document.body.appendChild(halo);
+    var fine = window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    var W = function () { return window.innerWidth; }, H = function () { return window.innerHeight; };
+    var cx = W() / 2, cy = H() * 0.38, tx = cx, ty = cy, r = 60, tr = Math.max(300, Math.min(W(), H()) * 0.42), running = false;
+    function paint() {
+      halo.style.setProperty("--hx", cx.toFixed(1) + "px");
+      halo.style.setProperty("--hy", cy.toFixed(1) + "px");
+      halo.style.setProperty("--r", r.toFixed(1) + "px");
+    }
+    function loop() {
+      var k = reduce ? 1 : 0.075;
+      cx += (tx - cx) * k; cy += (ty - cy) * k; r += (tr - r) * (reduce ? 1 : 0.04);
+      paint();
+      if (Math.abs(tx - cx) + Math.abs(ty - cy) + Math.abs(tr - r) > 0.5) requestAnimationFrame(loop);
+      else running = false;
+    }
+    function kick() { if (!running) { running = true; requestAnimationFrame(loop); } }
+    function fromScroll() {
+      /* táctil: la luz baja con la lectura y se mece suavemente de lado a lado */
+      var y = window.scrollY || 0;
+      tx = W() * (0.5 + 0.16 * Math.sin(y / 420)); ty = H() * 0.42; kick();
+    }
+    if (fine && !reduce) {
+      window.addEventListener("pointermove", function (e) { tx = e.clientX; ty = e.clientY; kick(); }, { passive: true });
+    } else if (!reduce) {
+      window.addEventListener("scroll", fromScroll, { passive: true });
+    }
+    window.addEventListener("resize", function () { tr = Math.max(300, Math.min(W(), H()) * 0.42); kick(); });
+    paint();
+    requestAnimationFrame(function () { halo.classList.add("on"); kick(); });
+  }
+
   /* ---------- Menú ---------- */
   var btn = document.getElementById("menu-btn");
   var menu = document.getElementById("menu");

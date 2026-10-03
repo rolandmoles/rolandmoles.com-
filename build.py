@@ -295,7 +295,7 @@ def page_html(path, meta, body, css_v, js_v):
 {stats}
 <script type="application/ld+json">{jsonld(path, meta, url)}</script>
 </head>
-<body>
+<body{' data-effect="' + meta["effect"] + '"' if meta.get("effect") else ""}>
 <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:bg-primary focus:text-black focus:px-4 focus:py-2 text-sm">saltar al contenido</a>
 <div class="min-h-screen bg-black text-white">{nav_html(path)}<main id="main">{body}</main>{footer_html()}</div>
 </body>
