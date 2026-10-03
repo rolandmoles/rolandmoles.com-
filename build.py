@@ -24,6 +24,7 @@ SITE = {
     "email": "hola@rolandmoles.com",            # correo público de la web
     "formspree": "https://formspree.io/f/mlgzvdlb",
     "instagram": "https://www.instagram.com/roland.moles/",
+    "linkedin": "https://www.linkedin.com/in/roland-moles-cateura-a41483145/",
     "og_image": "/assets/img/og-image.jpg",
     "locale": "es_ES",
     "goatcounter": "rolandmoles",                # estadísticas sin cookies (vacío = desactivadas)
@@ -173,6 +174,7 @@ def footer_html():
             + "".join(f'<a href="{h}" class="block hover:text-primary transition-colors">{n}</a>' for n, h in NAV) +
             '</div></div><div class="md:col-span-4"><h3 class="mb-4 text-white font-bold text-xs">redes_</h3><div class="space-y-2 text-white/50 text-xs">'
             f'<a href="{SITE["instagram"]}" target="_blank" rel="noopener noreferrer" class="block hover:text-primary transition-colors">instagram_</a>'
+            f'<a href="{SITE["linkedin"]}" target="_blank" rel="noopener noreferrer" class="block hover:text-primary transition-colors">linkedin_</a>'
             f'<a href="mailto:{e}" class="block hover:text-primary transition-colors">email_</a></div></div></div>'
             '<div class="pt-8 border-t border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-white/20 text-xs tracking-tight">'
             f'<p>© {datetime.date.today().year} roland moles</p><p class="flex items-center gap-2" style="font-size: 10px;">'
@@ -193,7 +195,7 @@ def person():
         "address": {"@type": "PostalAddress", "addressLocality": "Barcelona", "addressCountry": "ES"},
         "alumniOf": {"@type": "CollegeOrUniversity", "name": "Conservatori Superior del Liceu"},
         "knowsAbout": ["Guitarra clásica", "Música de cámara", "Creación escénica", "Investigación artística"],
-        "sameAs": [SITE["instagram"]],
+        "sameAs": [SITE["instagram"], SITE["linkedin"]],
     }
 
 
