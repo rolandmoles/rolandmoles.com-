@@ -124,8 +124,12 @@ h1, h2, h3, h4, h5, h6 {
   background:
     radial-gradient(circle var(--r, 340px) at var(--hx, 50%) var(--hy, 38%),
       rgba(255, 226, 196, .055) 0%, rgba(255, 226, 196, .02) 22%, rgba(0, 0, 0, 0) 38%,
-      rgba(0, 0, 0, .38) 62%, rgba(0, 0, 0, .58) 100%);
+      rgba(0, 0, 0, .24) 62%, rgba(0, 0, 0, .4) 100%);
   opacity: 0; transition: opacity 1.8s cubic-bezier(.2, .6, .2, 1) .15s;
 }
 .halo.on { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .halo { transition: none; } }
+/* clarObscur: texto algo más claro para compensar la penumbra del halo */
+body[data-effect="clarobscur"] main .text-white\/30:not(:hover) { color: rgb(255 255 255 / .5); }
+body[data-effect="clarobscur"] main .text-white\/40:not(:hover) { color: rgb(255 255 255 / .6); }
+body[data-effect="clarobscur"] main .text-white\/50:not(:hover) { color: rgb(255 255 255 / .72); }
