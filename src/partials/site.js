@@ -3,6 +3,13 @@
   "use strict";
   window.__rm = true;
   var html = document.documentElement;
+  var T = html.lang === "ca" ? {
+    close: "tancar_", menu: "menú_", req: "tots els camps són obligatoris", mail: "correu no vàlid",
+    short: "el missatge ha de tenir com a mínim 10 caràcters", sending: "enviant...", err: "error en l'enviament, torna-ho a provar"
+  } : {
+    close: "cerrar_", menu: "menú_", req: "todos los campos son obligatorios", mail: "email no válido",
+    short: "el mensaje debe tener al menos 10 caracteres", sending: "enviando...", err: "error al enviar. intenta de nuevo"
+  };
 
   /* ---------- Animaciones de entrada ---------- */
   function reveal(el) { el.classList.add("in"); }
@@ -70,7 +77,7 @@
   var menu = document.getElementById("menu");
   function setMenu(open) {
     html.classList.toggle("menu-open", open);
-    btn.textContent = open ? "cerrar_" : "menú_";
+    btn.textContent = open ? T.close : T.menu;
     btn.setAttribute("aria-expanded", open ? "true" : "false");
     if (open) { var a = menu.querySelector("a"); if (a) setTimeout(function () { a.focus({ preventScroll: true }); }, 50); }
   }
@@ -197,14 +204,14 @@
 
       if (kind === "contacto") {
         data.name = clean(data.name); data.email = clean(data.email); data.message = clean(data.message);
-        if (!data.name || !data.email || !data.message) return fail("todos los campos son obligatorios");
-        if (!EMAIL_RE.test(data.email)) return fail("email no válido");
-        if (data.message.length < 10) return fail("el mensaje debe tener al menos 10 caracteres");
+        if (!data.name || !data.email || !data.message) return fail(T.req);
+        if (!EMAIL_RE.test(data.email)) return fail(T.mail);
+        if (data.message.length < 10) return fail(T.short);
         data._subject = "Nuevo mensaje desde rolandmoles.com";
       } else {
         data.email = clean(data.email);
         if (!EMAIL_RE.test(data.email)) { form.querySelector("input[type=email]").reportValidity(); return; }
-        submit.textContent = "enviando...";
+        submit.textContent = T.sending;
       }
 
       submit.disabled = true;
@@ -221,7 +228,7 @@
           var sent = box.querySelector("[data-sent]");
           form.hidden = true; if (sent) sent.hidden = false;
         }
-      }).catch(function () { fail("error al enviar. intenta de nuevo"); });
+      }).catch(function () { fail(T.err); });
     });
   });
 })();

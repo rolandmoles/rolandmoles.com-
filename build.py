@@ -30,8 +30,63 @@ SITE = {
     "goatcounter": "rolandmoles",                # estadísticas sin cookies (vacío = desactivadas)
 }
 
-NAV = [("inicio_", "/"), ("sobre mí_", "/sobre-mi"), ("proyectos_", "/proyectos"),
-       ("media_", "/media"), ("contacto_", "/contacto")]
+# ---------------------------------------------------------------- IDIOMAS
+# Castellano en la raíz, catalán bajo /ca/. Cada página castellana tiene su
+# equivalente catalana según ALT (las fichas de proyecto mantienen el mismo nombre).
+LANG = {
+    "es": {
+        "dir": "pages", "locale": "es_ES", "home": "/",
+        "nav": [("inicio_", "/"), ("sobre mí_", "/sobre-mi"), ("proyectos_", "/proyectos"),
+                ("media_", "/media"), ("contacto_", "/contacto")],
+        "projects": "/proyectos", "contact": "/contacto",
+        "back": "volver_", "next": "siguiente proyecto_", "collabs": "colaboradores_", "contact_btn": "contacto_",
+        "footer_nav": "navegación_", "footer_social": "redes_", "footer_mail": "email_",
+        "legal": [("Aviso legal", "/aviso-legal"), ("Política de privacidad", "/privacidad"), ("Política de cookies", "/cookies")],
+        "skip": "saltar al contenido", "menu": "menú_", "menu_label": "Menú", "zoom": "Ampliar",
+        "home_crumb": "Inicio", "projects_crumb": "Proyectos",
+        "job": "Guitarrista clásico",
+        "bio": "Guitarrista clásico andorrano establecido en Barcelona. Interpretación, creación escénica e investigación artística.",
+        "service": "Guitarra clásica en directo para bodas y eventos", "service_type": "Música en directo para celebraciones",
+        "og_alt": "Roland Moles, guitarrista clásico",
+    },
+    "ca": {
+        "dir": "pages-ca", "locale": "ca_ES", "home": "/ca/",
+        "nav": [("inici_", "/ca/"), ("sobre mi_", "/ca/sobre-mi"), ("projectes_", "/ca/projectes"),
+                ("mèdia_", "/ca/media"), ("contacte_", "/ca/contacte")],
+        "projects": "/ca/projectes", "contact": "/ca/contacte",
+        "back": "tornar_", "next": "següent projecte_", "collabs": "col·laboradors_", "contact_btn": "contacte_",
+        "footer_nav": "navegació_", "footer_social": "xarxes_", "footer_mail": "correu_",
+        "legal": [("Avís legal", "/ca/avis-legal"), ("Política de privadesa", "/ca/privadesa"), ("Política de galetes", "/ca/galetes")],
+        "skip": "saltar al contingut", "menu": "menú_", "menu_label": "Menú", "zoom": "Amplia",
+        "home_crumb": "Inici", "projects_crumb": "Projectes",
+        "job": "Guitarrista clàssic",
+        "bio": "Guitarrista clàssic andorrà establert a Barcelona. Interpretació, creació escènica i recerca artística.",
+        "service": "Guitarra clàssica en directe per a casaments i esdeveniments", "service_type": "Música en directe per a celebracions",
+        "og_alt": "Roland Moles, guitarrista clàssic",
+    },
+}
+ALT = {"/": "/ca/", "/sobre-mi": "/ca/sobre-mi", "/proyectos": "/ca/projectes", "/media": "/ca/media",
+       "/contacto": "/ca/contacte", "/ceremonias": "/ca/cerimonies", "/aviso-legal": "/ca/avis-legal",
+       "/privacidad": "/ca/privadesa", "/cookies": "/ca/galetes"}
+
+
+def alt_of(path, lang):
+    """Ruta equivalente en el otro idioma."""
+    if lang == "es":
+        if path in ALT:
+            return ALT[path]
+        if path.startswith("/proyectos/"):
+            return "/ca/projectes/" + path.split("/", 2)[2]
+    else:
+        back = {v: k for k, v in ALT.items()}
+        if path in back:
+            return back[path]
+        if path.startswith("/ca/projectes/"):
+            return "/proyectos/" + path.split("/", 3)[3]
+    return None
+
+
+L = LANG["es"]  # idioma de la página que se está generando
 
 # Script mínimo en línea: activa las animaciones solo si hay JavaScript.
 # Si site.js no llegara a cargar, a los 3 s se muestra todo igualmente.
@@ -51,8 +106,9 @@ def sha256_b64(s):
 # Pequeños atajos para no repetir HTML. Formato: {{nombre: campo | campo | ...}}
 # En los textos, " ¶ " equivale a un salto de línea.
 
-BACK = ('<a class="inline-flex items-baseline gap-2 text-white/40 hover:text-primary mb-24 transition-colors group text-sm tracking-tight" href="/proyectos">'
-        '<span class="group-hover:-translate-x-1 transition-transform inline-block" aria-hidden="true">←</span><span>volver_</span></a>')
+def back_html():
+    return ('<a class="inline-flex items-baseline gap-2 text-white/40 hover:text-primary mb-24 transition-colors group text-sm tracking-tight" href="' + L["projects"] + '">'
+            '<span class="group-hover:-translate-x-1 transition-transform inline-block" aria-hidden="true">←</span><span>' + L["back"] + '</span></a>')
 
 
 def nl(t):
@@ -81,7 +137,7 @@ def m_press_row(href, year, media, title, text):
 
 
 def m_photo(name, alt):
-    return (f'<button type="button" class="block aspect-square bg-white/5 overflow-hidden cursor-pointer group" data-lb="/assets/img/{name}-full.webp" aria-label="Ampliar: {esc(alt)}">'
+    return (f'<button type="button" class="block aspect-square bg-white/5 overflow-hidden cursor-pointer group" data-lb="/assets/img/{name}-full.webp" aria-label="{L["zoom"]}: {esc(alt)}">'
             f'<img src="/assets/img/{name}.webp" alt="{esc(alt)}" width="800" height="800" loading="lazy" decoding="async" '
             'class="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-all duration-700 grayscale group-hover:grayscale-0"></button>')
 
@@ -106,8 +162,7 @@ def m_collab(name, role):
 SIMPLE = {
     "rows_start": '<div class="space-y-12 mb-24 text-sm tracking-tight">',
     "rows_end": "</div>",
-    "collabs_start": ('<div class="border-t border-white/5 pt-24 mb-24"><h2 class="text-xl mb-12 tracking-tight">colaboradores_</h2>'
-                      '<div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm tracking-tight">'),
+    "collabs_start": "",
     "collabs_end": "</div></div>",
     "project_end": ('<div class="mt-20 pt-12 border-t border-white/5 flex flex-wrap gap-4 items-center">'
                     '<a class="inline-block px-8 py-4 bg-primary text-black hover:bg-primary/80 transition-all text-sm tracking-tight" href="/contacto">contacto_</a>'
@@ -126,14 +181,16 @@ def expand(body, meta):
     next_html = ""
     if nxt:
         next_html = ('<a class="group block mt-20 pt-12 border-t border-white/5" href="' + nxt[0] + '">'
-                     '<p class="text-xs text-white/30 tracking-tight mb-4">siguiente proyecto_</p>'
+                     '<p class="text-xs text-white/30 tracking-tight mb-4">' + L["next"] + '</p>'
                      '<div class="flex items-baseline justify-between gap-4"><span class="text-2xl md:text-3xl tracking-tight group-hover:text-primary transition-colors">'
                      + nxt[1] + '</span><span class="text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-sm flex-shrink-0" aria-hidden="true">→</span></div></a>')
     SIMPLE["project_end"] = ('<div class="mt-20 pt-12 border-t border-white/5 flex flex-wrap gap-4 items-center">'
-                             '<a class="inline-block px-8 py-4 bg-primary text-black hover:bg-primary/80 transition-all text-sm tracking-tight" href="/contacto">contacto_</a>'
+                             '<a class="inline-block px-8 py-4 bg-primary text-black hover:bg-primary/80 transition-all text-sm tracking-tight" href="' + L["contact"] + '">' + L["contact_btn"] + '</a>'
                              '</div>' + next_html + '</div></div></div>')
+    SIMPLE["collabs_start"] = ('<div class="border-t border-white/5 pt-24 mb-24"><h2 class="text-xl mb-12 tracking-tight">' + L["collabs"] + '</h2>'
+                               '<div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm tracking-tight">')
     SIMPLE["project_start"] = ('<div class="relative min-h-screen pt-24 sm:pt-32 pb-16 sm:pb-24 overflow-hidden">' + decor +
-                               '<div class="max-w-[1200px] mx-auto px-8 md:px-16"><div data-r="fade" data-load style="--dur:.5s">' + BACK)
+                               '<div class="max-w-[1200px] mx-auto px-8 md:px-16"><div data-r="fade" data-load style="--dur:.5s">' + back_html())
 
     def rep(m):
         name, args = m.group(1), m.group(2)
@@ -151,16 +208,25 @@ def expand(body, meta):
 
 # ---------------------------------------------------------------- LAYOUT
 
-def nav_html(path):
+def nav_html(path, lang):
+    other = "ca" if lang == "es" else "es"
+    alt = alt_of(path, lang) or LANG[other]["home"]
+    sw = ('<span class="flex items-center gap-1.5 text-xs sm:text-sm tracking-tight">'
+          + "".join(
+              (f'<span class="text-white" aria-current="true">{c}</span>' if c == lang else
+               f'<a class="text-white/35 hover:text-primary transition-colors" href="{alt}" hreflang="{c}" lang="{c}">{c}</a>')
+              + ('<span class="text-white/20" aria-hidden="true">/</span>' if c == "es" else "")
+              for c in ("es", "ca")) + '</span>')
     items = "".join(
         f'<div class="mi"><a class="block text-4xl sm:text-5xl md:text-6xl tracking-tight transition-colors '
         f'{"text-primary" if href == path else "text-white/80 hover:text-primary"}" href="{href}"'
         f'{" aria-current=\"page\"" if href == path else ""}>{name}</a></div>'
-        for name, href in NAV)
+        for name, href in L["nav"])
     return ('<nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md" aria-label="Principal"><div class="max-w-[1600px] mx-auto px-4 sm:px-8 md:px-16 py-4 sm:py-6 md:py-8">'
-            '<div class="flex items-center justify-between"><a class="text-xs sm:text-sm tracking-tight hover:text-primary transition-colors" href="/">roland moles</a>'
-            '<button type="button" id="menu-btn" class="text-xs sm:text-sm tracking-tight hover:text-primary transition-colors" aria-label="Menú" aria-expanded="false" aria-controls="menu">menú_</button>'
-            '</div></div></nav>'
+            '<div class="flex items-center justify-between"><a class="text-xs sm:text-sm tracking-tight hover:text-primary transition-colors" href="' + L["home"] + '">roland moles</a>'
+            '<div class="flex items-center gap-6 sm:gap-10">' + sw +
+            '<button type="button" id="menu-btn" class="text-xs sm:text-sm tracking-tight hover:text-primary transition-colors" aria-label="' + L["menu_label"] + '" aria-expanded="false" aria-controls="menu">' + L["menu"] + '</button>'
+            '</div></div></div></nav>'
             '<div id="menu" class="fixed inset-0 z-40 bg-black/95 backdrop-blur-lg"><div class="flex items-center justify-center min-h-screen">'
             f'<div class="space-y-8 text-center">{items}</div></div></div>')
 
@@ -170,17 +236,16 @@ def footer_html():
     return ('<footer class="border-t border-white/5 mt-20 sm:mt-32 md:mt-40"><div class="max-w-[1600px] mx-auto px-4 sm:px-8 md:px-16 py-12 sm:py-16 md:py-24">'
             '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-8 sm:gap-12 md:gap-16 mb-12 sm:mb-16 text-xs sm:text-sm tracking-tight">'
             '<div class="sm:col-span-2 md:col-span-5"><h3 class="mb-3 sm:mb-4 tracking-tight text-sm sm:text-base">roland moles</h3></div>'
-            '<div class="md:col-span-3"><h3 class="mb-3 sm:mb-4 text-white font-bold text-xs">navegación_</h3><div class="space-y-2 text-white/50 text-xs">'
-            + "".join(f'<a href="{h}" class="block hover:text-primary transition-colors">{n}</a>' for n, h in NAV) +
-            '</div></div><div class="md:col-span-4"><h3 class="mb-4 text-white font-bold text-xs">redes_</h3><div class="space-y-2 text-white/50 text-xs">'
+            '<div class="md:col-span-3"><h3 class="mb-3 sm:mb-4 text-white font-bold text-xs">' + L["footer_nav"] + '</h3><div class="space-y-2 text-white/50 text-xs">'
+            + "".join(f'<a href="{h}" class="block hover:text-primary transition-colors">{n}</a>' for n, h in L["nav"]) +
+            '</div></div><div class="md:col-span-4"><h3 class="mb-4 text-white font-bold text-xs">' + L["footer_social"] + '</h3><div class="space-y-2 text-white/50 text-xs">'
             f'<a href="{SITE["instagram"]}" target="_blank" rel="noopener noreferrer" class="block hover:text-primary transition-colors">instagram_</a>'
             f'<a href="{SITE["linkedin"]}" target="_blank" rel="noopener noreferrer" class="block hover:text-primary transition-colors">linkedin_</a>'
-            f'<a href="mailto:{e}" class="block hover:text-primary transition-colors">email_</a></div></div></div>'
+            f'<a href="mailto:{e}" class="block hover:text-primary transition-colors">{L["footer_mail"]}</a></div></div></div>'
             '<div class="pt-8 border-t border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-white/20 text-xs tracking-tight">'
             f'<p>© {datetime.date.today().year} roland moles</p><p class="flex items-center gap-2" style="font-size: 10px;">'
-            '<a class="hover:text-white/40 transition-colors no-underline" href="/aviso-legal">Aviso legal</a><span aria-hidden="true">·</span>'
-            '<a class="hover:text-white/40 transition-colors no-underline" href="/privacidad">Política de privacidad</a><span aria-hidden="true">·</span>'
-            '<a class="hover:text-white/40 transition-colors no-underline" href="/cookies">Política de cookies</a></p></div></div></footer>')
+            + '<span aria-hidden="true">·</span>'.join(f'<a class="hover:text-white/40 transition-colors no-underline" href="{h}">{n}</a>' for n, h in L["legal"])
+            + '</p></div></div></footer>')
 
 
 def person():
@@ -188,31 +253,33 @@ def person():
         "@type": "Person", "@id": SITE["domain"] + "/#person",
         "name": "Roland Moles", "url": SITE["domain"] + "/",
         "image": SITE["domain"] + "/assets/img/retrato.webp",
-        "jobTitle": "Guitarrista clásico",
-        "description": "Guitarrista clásico andorrano establecido en Barcelona. Interpretación, creación escénica e investigación artística.",
+        "jobTitle": L["job"],
+        "description": L["bio"],
         "email": "mailto:" + SITE["email"],
         "nationality": {"@type": "Country", "name": "Andorra"},
         "address": {"@type": "PostalAddress", "addressLocality": "Barcelona", "addressCountry": "ES"},
         "alumniOf": {"@type": "CollegeOrUniversity", "name": "Conservatori Superior del Liceu"},
-        "knowsAbout": ["Guitarra clásica", "Música de cámara", "Creación escénica", "Investigación artística"],
+        "knowsAbout": ["Guitarra clásica", "Música de cámara", "Creación escénica", "Investigación artística", "Gestión cultural"],
         "sameAs": [SITE["instagram"], SITE["linkedin"]],
     }
 
 
-def jsonld(path, meta, url):
+def jsonld(path, meta, url, lang):
     graph = [person(), {"@type": "WebSite", "@id": SITE["domain"] + "/#website", "url": SITE["domain"] + "/",
-                        "name": "Roland Moles", "inLanguage": "es", "publisher": {"@id": SITE["domain"] + "/#person"}}]
+                        "name": "Roland Moles", "inLanguage": ["es", "ca"], "publisher": {"@id": SITE["domain"] + "/#person"}}]
     page = {"@type": "ProfilePage" if meta.get("type") == "profile" else "WebPage", "@id": url + "#webpage",
-            "url": url, "name": meta["title"], "description": meta["description"], "inLanguage": "es",
+            "url": url, "name": meta["title"], "description": meta["description"], "inLanguage": lang,
             "isPartOf": {"@id": SITE["domain"] + "/#website"}}
-    if path == "/" or meta.get("type") == "profile":
+    if path == L["home"] or meta.get("type") == "profile":
         page["mainEntity"] = {"@id": SITE["domain"] + "/#person"}
     graph.append(page)
-    if path != "/":
-        crumbs = [("Inicio", "/")]
+    if path != L["home"]:
+        crumbs = [(L["home_crumb"], L["home"])]
         segs = path.strip("/").split("/")
-        labels = {"proyectos": "Proyectos"}
         acc = ""
+        if lang == "ca":
+            segs, acc = segs[1:], "/ca"
+        labels = {"proyectos": L["projects_crumb"], "projectes": L["projects_crumb"]}
         for i, s in enumerate(segs):
             acc += "/" + s
             name = meta["title"].split(" | ")[0].rstrip("_") if i == len(segs) - 1 else labels.get(s, s)
@@ -222,11 +289,11 @@ def jsonld(path, meta, url):
             for i, (n, h) in enumerate(crumbs)]})
     if meta.get("schema") == "project":
         graph.append({"@type": "CreativeWork", "name": meta["title"].split(" | ")[0].rstrip("_"),
-                      "description": meta["description"], "url": url, "inLanguage": "es",
+                      "description": meta["description"], "url": url, "inLanguage": lang,
                       "creator": {"@id": SITE["domain"] + "/#person"}})
     if meta.get("schema") == "service":
-        graph.append({"@type": "Service", "name": "Guitarra clásica en directo para bodas y eventos",
-                      "serviceType": "Música en directo para celebraciones", "description": meta["description"],
+        graph.append({"@type": "Service", "name": L["service"],
+                      "serviceType": L["service_type"], "description": meta["description"],
                       "provider": {"@id": SITE["domain"] + "/#person"},
                       "areaServed": [{"@type": "Place", "name": "Barcelona"}, {"@type": "Place", "name": "Cataluña"},
                                      {"@type": "Country", "name": "Andorra"}],
@@ -245,8 +312,20 @@ CSP = ("default-src 'self'; "
        "object-src 'none'; base-uri 'self'; upgrade-insecure-requests")
 
 
-def page_html(path, meta, body, css_v, js_v):
-    url = SITE["domain"] + (path if path != "/" else "/")
+def page_html(path, meta, body, css_v, js_v, lang="es"):
+    global L
+    L = LANG[lang]
+    url = SITE["domain"] + path
+    other = "ca" if lang == "es" else "es"
+    alt = alt_of(path, lang)
+    if alt and not meta.get("noindex"):
+        es_url = SITE["domain"] + (path if lang == "es" else alt)
+        ca_url = SITE["domain"] + (alt if lang == "es" else path)
+        hreflang = (f'<link rel="alternate" hreflang="es" href="{es_url}">\n<link rel="alternate" hreflang="ca" href="{ca_url}">\n'
+                    f'<link rel="alternate" hreflang="x-default" href="{es_url}">\n'
+                    f'<meta property="og:locale:alternate" content="{LANG[other]["locale"]}">\n')
+    else:
+        hreflang = ""
     title, desc = meta["title"], meta["description"]
     img = meta.get("image") or SITE["domain"] + SITE["og_image"]
     if img.startswith("/"):
@@ -261,7 +340,7 @@ def page_html(path, meta, body, css_v, js_v):
     stats = (f'<script data-goatcounter="{gc_url}/count" async src="https://gc.zgo.at/count.v5.js" '
              'integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ" crossorigin="anonymous"></script>\n') if gc and not meta.get("noindex") else ""
     return f"""<!doctype html>
-<html lang="es">
+<html lang="{lang}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -276,12 +355,13 @@ def page_html(path, meta, body, css_v, js_v):
 <meta name="color-scheme" content="dark">
 <meta property="og:type" content="{og_type}">
 <meta property="og:site_name" content="Roland Moles">
-<meta property="og:locale" content="{SITE['locale']}">
+<meta property="og:locale" content="{L['locale']}">
+{hreflang}
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{url}">
 <meta property="og:image" content="{img}">
-<meta property="og:image:alt" content="Roland Moles, guitarrista clásico">
+<meta property="og:image:alt" content="{L['og_alt']}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{esc(title)}">
 <meta name="twitter:description" content="{esc(desc)}">
@@ -293,11 +373,11 @@ def page_html(path, meta, body, css_v, js_v):
 <script>{INLINE_JS}</script>
 <script src="/assets/site.js?v={js_v}" defer></script>
 {stats}
-<script type="application/ld+json">{jsonld(path, meta, url)}</script>
+<script type="application/ld+json">{jsonld(path, meta, url, lang)}</script>
 </head>
 <body{' data-effect="' + meta["effect"] + '"' if meta.get("effect") else ""}>
-<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:bg-primary focus:text-black focus:px-4 focus:py-2 text-sm">saltar al contenido</a>
-<div class="min-h-screen bg-black text-white">{nav_html(path)}<main id="main">{body}</main>{footer_html()}</div>
+<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:bg-primary focus:text-black focus:px-4 focus:py-2 text-sm">{L["skip"]}</a>
+<div class="min-h-screen bg-black text-white">{nav_html(path, lang)}<main id="main">{body}</main>{footer_html()}</div>
 </body>
 </html>
 """
@@ -311,6 +391,13 @@ def read_page(fp):
     if not m:
         raise SystemExit(f"Falta el bloque meta en {fp}")
     return json.loads(m.group(1)), raw[m.end():].strip()
+
+
+def out_path(path):
+    rel = path.strip("/")
+    if path.endswith("/"):
+        return os.path.join(DIST, rel, "index.html") if rel else os.path.join(DIST, "index.html")
+    return os.path.join(DIST, rel + ".html")
 
 
 def file_hash(fp):
@@ -327,36 +414,38 @@ def main():
         shutil.copy(os.path.join(ROOT, "static", f), DIST)
     shutil.copy(os.path.join(SRC, "partials", "site.js"), os.path.join(DIST, "assets", "site.js"))
 
-    pages = []
-    pdir = os.path.join(SRC, "pages")
-    for dp, _, files in os.walk(pdir):
-        for f in sorted(files):
-            if f.endswith(".html"):
-                fp = os.path.join(dp, f)
-                rel = os.path.relpath(fp, pdir)[:-5].replace(os.sep, "/")
-                path = "/" if rel == "index" else "/" + rel
-                pages.append((path, fp))
-
-    # orden de proyectos = el de la lista de /proyectos (para "siguiente proyecto_")
-    order = re.findall(r"\{\{project_row:\s*(\S+)\s*\|", open(os.path.join(pdir, "proyectos.html"), encoding="utf-8").read())
-    titles = {}
-    for path, fp in pages:
-        if path in order:
-            titles[path] = read_page(fp)[0]["title"].split(" | ")[0]
-    nexts = {p: (order[(i + 1) % len(order)], titles.get(order[(i + 1) % len(order)], "")) for i, p in enumerate(order)}
-
-    # primera pasada: HTML sin estilos para que Tailwind detecte las clases
     js_v = file_hash(os.path.join(DIST, "assets", "site.js"))
     rendered = []
-    for path, fp in pages:
-        meta, body = read_page(fp)
-        if path in nexts:
-            meta["_next"] = nexts[path]
-        body = expand(body, meta)
-        rendered.append((path, meta, body))
-        out = os.path.join(DIST, "index.html" if path == "/" else path.strip("/") + ".html")
-        os.makedirs(os.path.dirname(out), exist_ok=True)
-        open(out, "w", encoding="utf-8").write(page_html(path, meta, body, "0", js_v))
+    for lang, conf in LANG.items():
+        global L
+        L = conf
+        pdir = os.path.join(SRC, conf["dir"])
+        prefix = "" if lang == "es" else "/ca"
+        pages = []
+        for dp, _, files in os.walk(pdir):
+            for f in sorted(files):
+                if f.endswith(".html"):
+                    fp = os.path.join(dp, f)
+                    rel = os.path.relpath(fp, pdir)[:-5].replace(os.sep, "/")
+                    path = (prefix + "/") if rel == "index" else prefix + "/" + rel
+                    pages.append((path, fp))
+
+        # orden de proyectos = el de la lista de proyectos (para "siguiente proyecto_")
+        listfile = os.path.join(pdir, conf["projects"].replace(prefix, "", 1).strip("/") + ".html")
+        order = re.findall(r"\{\{project_row:\s*(\S+)\s*\|", open(listfile, encoding="utf-8").read())
+        titles = {path: read_page(fp)[0]["title"].split(" | ")[0] for path, fp in pages if path in order}
+        nexts = {p: (order[(i + 1) % len(order)], titles.get(order[(i + 1) % len(order)], "")) for i, p in enumerate(order)}
+
+        # primera pasada: HTML sin estilos para que Tailwind detecte las clases
+        for path, fp in pages:
+            meta, body = read_page(fp)
+            if path in nexts:
+                meta["_next"] = nexts[path]
+            body = expand(body, meta)
+            rendered.append((path, meta, body, lang))
+            out = out_path(path)
+            os.makedirs(os.path.dirname(out), exist_ok=True)
+            open(out, "w", encoding="utf-8").write(page_html(path, meta, body, "0", js_v, lang))
 
     # CSS con Tailwind
     subprocess.run(["npx", "@tailwindcss/cli", "-i", os.path.join(SRC, "input.css"),
@@ -365,9 +454,8 @@ def main():
     css_v = file_hash(os.path.join(DIST, "assets", "site.css"))
 
     # segunda pasada con versión de CSS (evita cachés antiguas tras cada cambio)
-    for path, meta, body in rendered:
-        out = os.path.join(DIST, "index.html" if path == "/" else path.strip("/") + ".html")
-        open(out, "w", encoding="utf-8").write(page_html(path, meta, body, css_v, js_v))
+    for path, meta, body, lang in rendered:
+        open(out_path(path), "w", encoding="utf-8").write(page_html(path, meta, body, css_v, js_v, lang))
 
     # 404
     meta404 = {"title": "Página no encontrada | Roland Moles", "description": "Esta página no existe.", "noindex": True}
@@ -375,20 +463,28 @@ def main():
                '<div data-r="up" data-load style="--y:20px;--dur:.8s"><h1 class="text-4xl sm:text-5xl md:text-6xl mb-12 tracking-tight">404_</h1>'
                '<p class="text-base sm:text-lg text-white/50 tracking-tight max-w-md mb-12">esta página no existe o ha cambiado de sitio.</p>'
                '<a class="inline-block px-8 py-4 bg-white/10 text-white hover:bg-primary hover:text-black transition-all text-sm tracking-tight" href="/">volver al inicio_</a></div></div></div>')
-    open(os.path.join(DIST, "404.html"), "w", encoding="utf-8").write(page_html("/404", meta404, body404, css_v, js_v))
+    open(os.path.join(DIST, "404.html"), "w", encoding="utf-8").write(page_html("/404", meta404, body404, css_v, js_v, "es"))
 
     # sitemap y robots
     today = datetime.date.today().isoformat()
     urls = []
-    for path, meta, _ in sorted(rendered, key=lambda r: (r[0] != "/", r[0])):
+    for path, meta, _, lang in sorted(rendered, key=lambda r: (r[3] != "es", r[0] != LANG[r[3]]["home"], r[0])):
         if meta.get("noindex"):
             continue
-        prio = "1.0" if path == "/" else ("0.8" if path.count("/") == 1 else "0.6")
-        urls.append(f"  <url><loc>{SITE['domain']}{path if path != '/' else '/'}</loc><lastmod>{today}</lastmod><priority>{prio}</priority></url>")
+        depth = path.replace("/ca/", "/", 1).rstrip("/").count("/")
+        prio = "1.0" if path in ("/", "/ca/") else ("0.8" if depth == 1 else "0.6")
+        alt = alt_of(path, lang)
+        links = ""
+        if alt:
+            es_p, ca_p = (path, alt) if lang == "es" else (alt, path)
+            links = (f'<xhtml:link rel="alternate" hreflang="es" href="{SITE["domain"]}{es_p}"/>'
+                     f'<xhtml:link rel="alternate" hreflang="ca" href="{SITE["domain"]}{ca_p}"/>')
+        urls.append(f"  <url><loc>{SITE['domain']}{path}</loc>{links}<lastmod>{today}</lastmod><priority>{prio}</priority></url>")
     open(os.path.join(DIST, "sitemap.xml"), "w").write(
-        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>\n")
+        '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+        + "\n".join(urls) + "\n</urlset>\n")
     open(os.path.join(DIST, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE['domain']}/sitemap.xml\n")
-    print(f"OK: {len(rendered)} páginas en docs/")
+    print(f"OK: {len(rendered)} páginas en docs/ ({sum(1 for r in rendered if r[3] == 'es')} es, {sum(1 for r in rendered if r[3] == 'ca')} ca)")
 
 
 if __name__ == "__main__":
