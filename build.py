@@ -21,7 +21,7 @@ DIST = os.path.join(ROOT, "docs")
 SITE = {
     "domain": "https://www.rolandmoles.com",
     "name": "Roland Moles",
-    "email": "contacto@rolandmoles.com",        # correo público de la web
+    "email": "hola@rolandmoles.com",            # correo público de la web
     "formspree": "https://formspree.io/f/mlgzvdlb",
     "instagram": "https://www.instagram.com/roland.moles/",
     "og_image": "/assets/img/og-image.jpg",
