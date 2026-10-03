@@ -331,7 +331,7 @@ def page_html(path, meta, body, css_v, js_v, lang="es"):
     if img.startswith("/"):
         img = SITE["domain"] + img
     robots = "noindex, follow" if meta.get("noindex") else "index, follow, max-image-preview:large"
-    preload = (f'<link rel="preload" as="image" href="{meta["preload"]}" imagesrcset="{meta["preload_srcset"]}" imagesizes="100vw" fetchpriority="high">\n'
+    preload = (f'<link rel="preload" as="image" href="{meta["preload"]}" imagesrcset="{meta["preload_srcset"]}" imagesizes="{meta.get('preload_sizes', '100vw')}" fetchpriority="high">\n'
                if meta.get("preload_srcset") else (f'<link rel="preload" as="image" href="{meta["preload"]}" fetchpriority="high">\n' if meta.get("preload") else ""))
     og_type = "profile" if meta.get("type") == "profile" else ("article" if meta.get("schema") == "project" else "website")
     gc = SITE.get("goatcounter")

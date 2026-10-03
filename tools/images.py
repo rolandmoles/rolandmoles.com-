@@ -29,7 +29,10 @@ hero = load("hero.jpg")
 g = ImageOps.grayscale(hero).convert("RGB")
 save(fit(g, width=1920), "hero.webp", 62)
 save(fit(g, width=960), "hero-960.webp", 62)
-save(fit(g, width=900), "retrato.webp", 72)
+# retrato de "sobre mí" (original en alta: MATERIAL WEB/FOTOS/IMG_5233.JPG)
+ret = ImageOps.grayscale(load("retrato.jpg")).convert("RGB")
+save(fit(ret, width=1600), "retrato.webp", 74)
+save(fit(ret, width=800), "retrato-800.webp", 74)
 
 fotos = {"foto-1": "foto-1.jpg", "foto-2": "foto-2.jpg", "foto-3": "foto-3.jpg", "foto-4": "foto-4.jpg",
          "foto-5": "foto-5.jpg", "foto-6": "foto-6.jpg", "foto-7": "hero.jpg", "foto-8": "foto-8.jpg"}
